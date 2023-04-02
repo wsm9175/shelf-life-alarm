@@ -1,4 +1,4 @@
-package com.wsm9175.shelf_life.view
+package com.wsm9175.shelf_life.view.add
 
 import android.app.Dialog
 import android.content.Context
@@ -33,7 +33,7 @@ class SelectDialog(context: Context): Dialog(context) {
     }
 
     fun setOnTakePictureClickListener(listener: () -> Unit){
-        this.takePictureClickListener = object : TakePictureCLickListener{
+        this.takePictureClickListener = object : TakePictureCLickListener {
             override fun onClick() {
                 listener()
             }
@@ -41,7 +41,7 @@ class SelectDialog(context: Context): Dialog(context) {
     }
 
     fun setOnGetFromGalleryClickListener(listener: () -> Unit){
-        this.getFromGalleryClickListener = object : GetFromGalleryClickListener{
+        this.getFromGalleryClickListener = object : GetFromGalleryClickListener {
             override fun onClick() {
                 listener()
             }

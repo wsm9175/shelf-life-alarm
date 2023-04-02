@@ -1,39 +1,42 @@
-package com.wsm9175.shelf_life.view
+package com.wsm9175.shelf_life.view.add
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
-import android.widget.MediaController
+import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.wsm9175.shelf_life.databinding.ActivityMainBinding
+import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.Observer
+import com.wsm9175.shelf_life.databinding.ActivityItemAddBinding
+import java.time.LocalDate
 
-class MainActivity : AppCompatActivity() {
-    private val TAG = MainActivity::class.java.simpleName
-    private lateinit var binding : ActivityMainBinding
+class ItemAddActivity : AppCompatActivity() {
+    private val TAG = ItemAddActivity::class.java.simpleName
+    private lateinit var binding : ActivityItemAddBinding
+    private val viewModel : ItemAddViewModel by viewModels()
+
     private val REQUEST_IMAGE_CAPTURE = 1
     private lateinit var getTakePictureResult : ActivityResultLauncher<Intent>
     private lateinit var getFromGalleryResult : ActivityResultLauncher<Intent>
-    private val viewModel : MainViewModel by viewModels()
     private lateinit var takePictureIntent : Intent
     private lateinit var getPictureIntent : Intent
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        binding.activity = this@MainActivity
+        binding = ActivityItemAddBinding.inflate(layoutInflater)
+        binding.activity = this
         setContentView(binding.root)
 
         takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -47,16 +50,49 @@ class MainActivity : AppCompatActivity() {
         getTakePictureResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
             if(it.resultCode == RESULT_OK){
                 val imageBitmap = it.data?.extras?.get("data") as Bitmap
-                Log.d(TAG, "get take picture success")
+                binding.image.setImageBitmap(imageBitmap)
             }
         }
 
         getFromGalleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
             if(it.resultCode == RESULT_OK){
-                val imageBitmap = it.data?.extras?.get("data") as Bitmap
-                Log.d(TAG, "get picture from gallery success")
+                val intent = it.data
+                val uri = intent!!.data
+                binding.image.setImageURI(uri)
+
             }
         }
+
+        binding.edtStartDate.setOnFocusChangeListener(object : OnFocusChangeListener{
+            override fun onFocusChange(p0: View?, hasFocus: Boolean) {
+                if(!hasFocus){
+                    var text = binding.edtStartDate.text.toString()
+                    if(text.length> 7)
+                        binding.edtStartDate.setText("${text.substring(0, 4)}-${text.substring(4, 6)}-${text.substring(6, 8)}")
+                    else
+                        binding.edtStartDate.setText("")
+                }
+            }
+        })
+
+        binding.edtEndDate.setOnFocusChangeListener(object : OnFocusChangeListener{
+            override fun onFocusChange(p0: View?, hasFocus: Boolean) {
+                if(!hasFocus){
+                    var text = binding.edtEndDate.text.toString()
+                    if(text.length> 7)
+                        binding.edtEndDate.setText("${text.substring(0, 4)}-${text.substring(4, 6)}-${text.substring(6, 8)}")
+                    else
+                        binding.edtEndDate.setText("")
+                }
+            }
+        })
+
+        viewModel.save.observe(this, Observer {
+            if(it.equals("done")) {
+                Toast.makeText(applicationContext, "저장이 완료되었습니다", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        })
     }
 
     fun showSelectDialog(){
@@ -65,10 +101,12 @@ class MainActivity : AppCompatActivity() {
         dialog.setOnTakePictureClickListener {
             Log.d(TAG, "click take picture")
             if(checkPermission()) getTakePictureResult.launch(takePictureIntent)
+            dialog.dismiss()
         }
         dialog.setOnGetFromGalleryClickListener {
             if(checkPermission()) getFromGalleryResult.launch(getPictureIntent)
             Log.d(TAG, "click get from gallery")
+            dialog.dismiss()
         }
         dialog.show()
     }
@@ -86,6 +124,27 @@ class MainActivity : AppCompatActivity() {
             return false
         }
         return true
+    }
+
+    fun saveFoodItem(){
+        try {
+            val image = binding.image.drawable.toBitmap()
+            val name = binding.edtName.text.toString()
+            val count = binding.edtCount.text.toString().toLong()
+            val startDate = LocalDate.parse(binding.edtStartDate.text.toString())
+            val endDate = LocalDate.parse(binding.edtEndDate.text.toString())
+            val note = binding.edtNote.text.toString()
+
+            if(startDate.compareTo(endDate) > 0){
+                Toast.makeText(this, "구매일이 유통기한보다 클 수 없습니다.", Toast.LENGTH_SHORT).show()
+                return
+            }
+            viewModel.insertItem(image, name, count, startDate, endDate, note)
+        }catch (e :java.lang.Exception){
+            e.printStackTrace()
+            Toast.makeText(this, "알맞은 형식을 입력해주세요", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     override fun onRequestPermissionsResult(

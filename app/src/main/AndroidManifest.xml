@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-feature android:name="android.hardware.camera" android:required="true"/>
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
     <application
         android:name=".App"
@@ -17,7 +23,13 @@
         android:theme="@style/Theme.Shelf_life"
         tools:targetApi="31">
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.detail.DetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.add.ItemAddActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Shelf_life.Splash">
             <intent-filter>
@@ -26,6 +38,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".receiver.Receiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.INPUT_METHOD_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

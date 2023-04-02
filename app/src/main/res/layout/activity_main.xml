@@ -3,7 +3,7 @@
     <data>
         <variable
             name="activity"
-            type="com.wsm9175.shelf_life.view.MainActivity"/>
+            type="com.wsm9175.shelf_life.view.main.MainActivity"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        tools:context=".view.MainActivity">
+        tools:context=".view.main.MainActivity">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:text="유통기한 알리미"
-                android:textSize="15sp"
+                android:textSize="20sp"
                 android:textStyle="bold"/>
             <ImageView
                 android:id="@+id/plus"
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/baseline_add_24"
                 app:tint="@color/white"
-                android:onClick="@{()->activity.showSelectDialog()}"
+                android:onClick="@{()->activity.moveToAddActivity()}"
                 android:layout_gravity="right"
                 android:layout_marginRight="20dp"/>
 
@@ -44,6 +44,19 @@
             android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@+id/toolbar"
             app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:text="위 + 버튼을 눌러서\n 음식을 추가해보세요"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
